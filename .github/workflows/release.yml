@@ -1,0 +1,54 @@
+name: Build & Release
+
+on:
+  # Create a release when a version tag is pushed (e.g. v1.0.0)
+  push:
+    tags:
+      - 'v*.*.*'
+
+  # Also allow triggering a release manually from the GitHub UI
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write   # needed to create GitHub Releases
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build extension
+        run: npm run build
+
+      - name: Zip dist/
+        run: zip -r x-japanese-translator.zip dist/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          files: x-japanese-translator.zip
+          body: |
+            ## Install (no developer tools needed)
+
+            1. Download **x-japanese-translator.zip** below
+            2. Unzip it anywhere on your computer
+            3. Open **brave://extensions** (or **chrome://extensions**)
+            4. Enable **Developer mode** — toggle in the top-right corner
+            5. Click **Load unpacked** → select the unzipped `dist/` folder
+            6. Open [x.com](https://x.com) — Japanese tweets are annotated automatically
+
+            > The first page load takes a few seconds while the Japanese dictionary loads in the background.
