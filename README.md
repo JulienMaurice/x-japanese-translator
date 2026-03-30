@@ -2,6 +2,9 @@
 
 A Brave/Chrome extension that automatically annotates Japanese tweets on [x.com](https://x.com) with furigana readings and EN/FR translations — without leaving the page.
 
+![660530619_10238243337650085_3098683026442954446_n](https://github.com/user-attachments/assets/2292c59c-4bca-4b84-a1b5-1913b96a10d5)
+
+
 ---
 
 ## Install (no developer tools needed)
