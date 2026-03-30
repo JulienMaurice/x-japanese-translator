@@ -127,6 +127,21 @@ const STYLES = `
     word-break: break-word;
   }
 
+  /* ── Click-to-translate button (#6) ── */
+  .translate-btn {
+    margin-top: 4px;
+    padding: 4px 14px;
+    border: 1px solid rgba(29, 155, 240, 0.5);
+    border-radius: 9999px;
+    background: transparent;
+    color: rgb(29, 155, 240);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .translate-btn:hover { background: rgba(29, 155, 240, 0.1); }
+
   /* ── States ── */
 
   .loading {
@@ -216,12 +231,20 @@ export function createAnnotationHost(tweetRoot, settings = {}) {
  * @param {Array}  tokens  — from getTokens()
  * @param {{ en, fr, truncated }} translations
  */
-export function updateAnnotation(host, tokens, { en, fr, truncated }, settings = {}) {
+// Human-readable language names for the translation row labels
+const LANG_NAMES = {
+  en: 'English', fr: 'French',  es: 'Spanish',  de: 'German',
+  pt: 'Portuguese', it: 'Italian', nl: 'Dutch', pl: 'Polish',
+  ru: 'Russian', sv: 'Swedish', tr: 'Turkish', ar: 'Arabic',
+  zh: 'Chinese', ko: 'Korean',
+};
+
+export function updateAnnotation(host, tokens, { lang1, lang2, truncated }, settings = {}) {
   const {
-    showReading = true,   // #3
-    showRomaji  = true,   // #3
-    showLang1   = true,   // #3
-    showLang2   = true,   // #3
+    showReading = true,
+    showRomaji  = true,
+    showLang1   = true,
+    showLang2   = true,
   } = settings;
   if (!host?.shadowRoot) return;
 
@@ -281,11 +304,11 @@ export function updateAnnotation(host, tokens, { en, fr, truncated }, settings =
   sep.className = 'sep';
   panel.appendChild(sep);
 
-  // Translations — only render rows that are enabled (#3)
+  // Translations — only render rows that are enabled (#3/#4)
   const translationRows = [
-    { label: 'English', value: en, show: showLang1 },
-    { label: 'French',  value: fr, show: showLang2 },
-  ].filter((r) => r.show);
+    { label: LANG_NAMES[settings.lang1] || settings.lang1 || 'English', value: lang1, show: showLang1 },
+    { label: LANG_NAMES[settings.lang2] || settings.lang2 || 'French',  value: lang2, show: showLang2 },
+  ].filter((r) => r.show && r.value);
 
   for (const { label, value } of translationRows) {
     const row = document.createElement('div');
@@ -310,6 +333,70 @@ export function updateAnnotation(host, tokens, { en, fr, truncated }, settings =
     note.textContent = 'Text was too long — translation may be partial.';
     panel.appendChild(note);
   }
+}
+
+/**
+ * #6 — Click-to-translate: render tokens immediately, show a button
+ * instead of auto-translating. Calls onTranslate() when clicked.
+ */
+export function showTranslateButton(host, tokens, settings, onTranslate) {
+  if (!host?.shadowRoot) return;
+  const panel = host.shadowRoot.querySelector('.panel');
+  panel.textContent = '';
+
+  const { showReading = true, showRomaji = true } = settings;
+  const grid = document.createElement('div');
+  grid.className = 'token-grid';
+
+  for (const token of tokens) {
+    if (token.type === 'break') {
+      const br = document.createElement('div');
+      br.className = 'token-break';
+      grid.appendChild(br);
+      continue;
+    }
+    if (token.type === 'plain') {
+      const span = document.createElement('span');
+      span.className = 'token-plain';
+      span.textContent = token.surface;
+      grid.appendChild(span);
+      continue;
+    }
+    const cell = document.createElement('div');
+    cell.className = 'token-cell';
+    const surface = document.createElement('div');
+    surface.className = 'token-surface';
+    surface.textContent = token.surface;
+    cell.appendChild(surface);
+    if (token.reading && showReading) {
+      const reading = document.createElement('div');
+      reading.className = 'token-reading';
+      reading.textContent = token.reading;
+      cell.appendChild(reading);
+    }
+    if (token.romaji && showRomaji) {
+      const romaji = document.createElement('div');
+      romaji.className = 'token-romaji';
+      romaji.textContent = token.romaji;
+      cell.appendChild(romaji);
+    }
+    grid.appendChild(cell);
+  }
+
+  panel.appendChild(grid);
+
+  const btn = document.createElement('button');
+  btn.className = 'translate-btn';
+  btn.textContent = 'Translate';
+  btn.addEventListener('click', () => {
+    btn.remove();
+    const loading = document.createElement('div');
+    loading.className = 'loading';
+    loading.textContent = 'Translating…';
+    panel.appendChild(loading);
+    onTranslate();
+  }, { once: true });
+  panel.appendChild(btn);
 }
 
 export function showAnnotationError(host, message = 'Translation failed.') {
