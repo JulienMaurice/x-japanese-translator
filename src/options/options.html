@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>X Japanese Translator — Settings</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <div class="page">
+    <h1>X Japanese Translator</h1>
+
+    <section>
+      <h2>General</h2>
+
+      <label class="toggle-row">
+        <span class="label-text">Enable extension</span>
+        <input type="checkbox" id="enabled" />
+        <span class="toggle"></span>
+      </label>
+    </section>
+
+    <section>
+      <h2>Annotation display</h2>
+
+      <label class="toggle-row">
+        <span class="label-text">Show hiragana reading <span class="hint">(blue row — kanji only)</span></span>
+        <input type="checkbox" id="showReading" />
+        <span class="toggle"></span>
+      </label>
+
+      <label class="toggle-row">
+        <span class="label-text">Show romaji <span class="hint">(grey italic row)</span></span>
+        <input type="checkbox" id="showRomaji" />
+        <span class="toggle"></span>
+      </label>
+
+      <div class="field-row">
+        <label for="romajiSystem" class="label-text">Romaji system</label>
+        <select id="romajiSystem">
+          <option value="hepburn">Hepburn (Tōkyō)</option>
+          <option value="nihon">Nihon-shiki (Tôkyô)</option>
+          <option value="kunrei">Kunrei-shiki (Tôkyô)</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <label for="minJapaneseChars" class="label-text">
+          Minimum Japanese characters
+          <span class="hint">(skip tweets with fewer)</span>
+        </label>
+        <input type="number" id="minJapaneseChars" min="1" max="20" step="1" />
+      </div>
+    </section>
+
+    <section>
+      <h2>Translations</h2>
+
+      <label class="toggle-row">
+        <span class="label-text">Show first translation</span>
+        <input type="checkbox" id="showLang1" />
+        <span class="toggle"></span>
+      </label>
+
+      <div class="field-row indent">
+        <label for="lang1" class="label-text">Language</label>
+        <select id="lang1"></select>
+      </div>
+
+      <label class="toggle-row">
+        <span class="label-text">Show second translation</span>
+        <input type="checkbox" id="showLang2" />
+        <span class="toggle"></span>
+      </label>
+
+      <div class="field-row indent">
+        <label for="lang2" class="label-text">Language</label>
+        <select id="lang2"></select>
+      </div>
+
+      <label class="toggle-row">
+        <span class="label-text">
+          Translate on click only
+          <span class="hint">(saves daily quota)</span>
+        </span>
+        <input type="checkbox" id="clickToTranslate" />
+        <span class="toggle"></span>
+      </label>
+
+      <div class="field-row">
+        <label for="myMemoryEmail" class="label-text">
+          MyMemory account email
+          <span class="hint">(raises limit to 50 000 chars/day)</span>
+        </label>
+        <input type="email" id="myMemoryEmail" placeholder="you@example.com" />
+      </div>
+    </section>
+
+    <div class="save-bar">
+      <span id="status" class="status"></span>
+      <button id="save">Save</button>
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

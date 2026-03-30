@@ -20,9 +20,10 @@ const sharedConfig = {
 };
 
 async function copyStaticFiles() {
-  // Copy manifest
   mkdirSync('dist', { recursive: true });
   copyFileSync('manifest.json', 'dist/manifest.json');
+  copyFileSync('src/options/options.html', 'dist/options.html');
+  copyFileSync('src/options/options.css', 'dist/options.css');
 
   // Copy kuromoji dictionary files
   const dictSrc = resolve(__dirname, 'node_modules/kuromoji/dict');
@@ -71,6 +72,12 @@ if (watching) {
       entryPoints: ['src/background/index.js'],
       outfile: 'dist/background.js',
       format: 'esm',
+    }),
+    build({
+      ...sharedConfig,
+      entryPoints: ['src/options/options.js'],
+      outfile: 'dist/options.js',
+      format: 'iife',
     }),
   ]);
 

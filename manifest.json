@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "X Japanese Translator",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Adds furigana, romaji and EN/FR translations to Japanese tweets on X",
-  "permissions": [],
+  "permissions": ["storage"],
   "host_permissions": [
     "https://x.com/*",
     "https://api.mymemory.translated.net/*"
@@ -12,6 +12,7 @@
     "service_worker": "background.js",
     "type": "module"
   },
+  "options_page": "options.html",
   "content_scripts": [
     {
       "matches": ["https://x.com/*"],

@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:mymemory.translated.net)",
+      "WebFetch(domain:github.com)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(gh auth:*)",
+      "Bash(git init:*)",
+      "Bash(git config:*)",
+      "Bash(git branch:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(gh repo:*)",
+      "Bash(git push:*)",
+      "Bash(git tag:*)",
+      "Bash(gh run:*)",
+      "Bash(gh project:*)",
+      "Bash(gh label:*)",
+      "Bash(gh issue create --repo JulienMaurice/x-japanese-translator --title \"Global on/off toggle\" --label \"options,priority: high\" --body \"A single switch at the top of the options page that disables all annotations site-wide.:*)",
+      "Bash(__NEW_LINE_f31791cab99ab358__ gh issue create --repo JulienMaurice/x-japanese-translator --title \"Section toggles — reading, romaji, translations\" --label \"options,priority: high\" --body \"Let the user show/hide each annotation layer independently.:*)",
+      "Bash(__NEW_LINE_f31791cab99ab358__ gh issue create --repo JulienMaurice/x-japanese-translator --title \"Language slot dropdowns\" --label \"options,priority: high\" --body \"Replace the hardcoded EN + FR pair with two configurable language dropdowns.:*)",
+      "Bash(__NEW_LINE_f31791cab99ab358__ gh issue create --repo JulienMaurice/x-japanese-translator --title \"MyMemory email field \\(quota 5K → 50K chars/day\\)\" --label \"options,priority: high\" --body \"MyMemory raises the anonymous 5 000 char/day limit to 50 000 when a registered email is appended as \\\\`&de=user@example.com\\\\`.:*)",
+      "Bash(gh issue create --repo JulienMaurice/x-japanese-translator --title \"Click-to-translate mode\" --label \"options,priority: medium\" --body \"Instead of translating every Japanese tweet automatically, show the annotation shell with a «Translate» button. Translation fires only when clicked — saves the MyMemory daily quota for users who scroll through heavy Japanese feeds.:*)",
+      "Bash(__NEW_LINE_0260576495afe5dd__ gh issue create --repo JulienMaurice/x-japanese-translator --title \"Romaji system selector\" --label \"options,priority: medium\" --body \"kuroshiro supports three romanisation systems. Let the user choose.:*)",
+      "Bash(__NEW_LINE_0260576495afe5dd__ gh issue create --repo JulienMaurice/x-japanese-translator --title \"Skip pure katakana tokens option\" --label \"options,priority: medium\" --body \"Katakana is already phonetic — loanwords like フィクション or ゲーム don''t need a romaji annotation for intermediate learners.:*)",
+      "Bash(__NEW_LINE_0260576495afe5dd__ gh issue create --repo JulienMaurice/x-japanese-translator --title \"Minimum Japanese character threshold\" --label \"options,priority: low\" --body \"Currently hardcoded to 2 characters. Let the user raise it to avoid annotating tweets that only contain a stray kanji.:*)",
+      "Bash(__NEW_LINE_0260576495afe5dd__ gh issue create --repo JulienMaurice/x-japanese-translator --title \"Font size control\" --label \"options,priority: low\" --body \"The annotation panel uses fixed font sizes. Let the user scale it.:*)",
+      "Bash(git checkout:*)"
+    ]
+  }
+}
