@@ -1,13 +1,9 @@
 const ENDPOINT = 'https://api.mymemory.translated.net/get';
-
-// MyMemory limit: ~500 chars per request.
-// We keep a safe margin and split at sentence boundaries.
 const MAX_CHARS = 450;
 
-// In-memory cache: tweet text → translation result
+// Cache keyed by "text|lang1|lang2" so language changes bust stale entries
 const cache = new Map();
 
-// Simple FIFO queue so we don't flood the API on page load
 const queue = [];
 let processing = false;
 
@@ -19,7 +15,6 @@ function truncate(text) {
   if (text.length <= MAX_CHARS) return { text, truncated: false };
 
   const candidate = text.substring(0, MAX_CHARS);
-  // Try to break at a Japanese sentence boundary
   const last = Math.max(
     candidate.lastIndexOf('\u3002'), // 。
     candidate.lastIndexOf('\uff01'), // ！
@@ -34,9 +29,15 @@ function truncate(text) {
   return { text: candidate, truncated: true };
 }
 
-async function fetchTranslation(text, langpair) {
-  const url = `${ENDPOINT}?q=${encodeURIComponent(text)}&langpair=${langpair}`;
-  const res = await fetch(url);
+// #5 — append registered email to raise quota from 5K → 50K chars/day
+function buildUrl(text, langpair, email) {
+  let url = `${ENDPOINT}?q=${encodeURIComponent(text)}&langpair=${langpair}`;
+  if (email) url += `&de=${encodeURIComponent(email)}`;
+  return url;
+}
+
+async function fetchTranslation(text, langpair, email) {
+  const res = await fetch(buildUrl(text, langpair, email));
   if (!res.ok) throw new Error(`MyMemory HTTP ${res.status}`);
   const data = await res.json();
   const translated = data?.responseData?.translatedText;
@@ -46,16 +47,16 @@ async function fetchTranslation(text, langpair) {
   return translated;
 }
 
-async function translateNow(text) {
+async function translateNow(text, lang1, lang2, email) {
   const { text: q, truncated } = truncate(text);
 
-  // Fire both language requests in parallel — they share the same rate-limit slot
-  const [en, fr] = await Promise.all([
-    fetchTranslation(q, 'ja|en').catch(() => '[translation unavailable]'),
-    fetchTranslation(q, 'ja|fr').catch(() => '[traduction indisponible]'),
+  // #4 — use configured language codes instead of hardcoded en/fr
+  const results = await Promise.all([
+    lang1 ? fetchTranslation(q, `ja|${lang1}`, email).catch(() => '[translation unavailable]') : Promise.resolve(null),
+    lang2 ? fetchTranslation(q, `ja|${lang2}`, email).catch(() => '[translation unavailable]') : Promise.resolve(null),
   ]);
 
-  return { en, fr, truncated };
+  return { lang1: results[0], lang2: results[1], truncated };
 }
 
 async function drainQueue() {
@@ -63,23 +64,22 @@ async function drainQueue() {
   processing = true;
 
   while (queue.length > 0) {
-    const { text, resolve, reject } = queue.shift();
+    const { text, lang1, lang2, email, resolve, reject } = queue.shift();
+    const cacheKey = `${text}|${lang1}|${lang2}`;
 
-    // Re-check cache in case a duplicate queued while we were waiting
-    if (cache.has(text)) {
-      resolve(cache.get(text));
+    if (cache.has(cacheKey)) {
+      resolve(cache.get(cacheKey));
       continue;
     }
 
     try {
-      const result = await translateNow(text);
-      cache.set(text, result);
+      const result = await translateNow(text, lang1, lang2, email);
+      cache.set(cacheKey, result);
       resolve(result);
     } catch (err) {
       reject(err);
     }
 
-    // ~1 tweet/second to stay well under MyMemory rate limits
     if (queue.length > 0) await sleep(1000);
   }
 
@@ -87,14 +87,22 @@ async function drainQueue() {
 }
 
 /**
- * Translate Japanese text to English and French.
- * Returns { en, fr, truncated }.
+ * Translate Japanese text using the configured language pair.
+ * Returns { lang1, lang2, truncated }.
+ *
+ * settings.lang1 / lang2  — #4 configurable language codes
+ * settings.myMemoryEmail  — #5 registered email for higher quota
  */
-export function translate(text) {
-  if (cache.has(text)) return Promise.resolve(cache.get(text));
+export function translate(text, settings = {}) {
+  const lang1 = settings.lang1 || 'en';
+  const lang2 = settings.lang2 || 'fr';
+  const email = settings.myMemoryEmail || '';
+  const cacheKey = `${text}|${lang1}|${lang2}`;
+
+  if (cache.has(cacheKey)) return Promise.resolve(cache.get(cacheKey));
 
   return new Promise((resolve, reject) => {
-    queue.push({ text, resolve, reject });
+    queue.push({ text, lang1, lang2, email, resolve, reject });
     drainQueue();
   });
 }
