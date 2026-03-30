@@ -4,14 +4,26 @@ A Brave/Chrome extension that automatically annotates Japanese tweets on [x.com]
 
 ---
 
-## Installation
+## Install (no developer tools needed)
+
+1. Go to the [**Releases**](https://github.com/JulienMaurice/x-japanese-translator/releases/latest) page
+2. Download **x-japanese-translator.zip**
+3. Unzip it anywhere on your computer
+4. Open **brave://extensions** (or **chrome://extensions**)
+5. Enable **Developer mode** — toggle in the top-right corner
+6. Click **Load unpacked** → select the unzipped `dist/` folder
+7. Open [x.com](https://x.com) — Japanese tweets are annotated automatically
+
+> The first page load takes a few seconds while the Japanese dictionary (~12 MB) loads in the background. Tweets that appear before it's ready are queued and annotated once it's done.
+
+---
+
+## Install (from source)
 
 ### Requirements
 
 - [Node.js](https://nodejs.org/) ≥ 18
 - Brave or any Chromium-based browser
-
-### 1 — Clone and build
 
 ```bash
 git clone https://github.com/JulienMaurice/x-japanese-translator
@@ -20,16 +32,7 @@ npm install
 npm run build
 ```
 
-This creates a `dist/` folder — that's the extension.
-
-### 2 — Load in Brave / Chrome
-
-1. Go to `brave://extensions` (or `chrome://extensions`)
-2. Enable **Developer mode** (toggle, top-right)
-3. Click **Load unpacked** → select the `dist/` folder
-4. Open [x.com](https://x.com) — Japanese tweets are annotated automatically
-
-> First load takes a few seconds while the Japanese dictionary (~12 MB) is fetched in the background. Tweets that appear before it's ready are queued and annotated once it's done.
+Then follow steps 4–7 above, selecting the `dist/` folder you just built.
 
 ### Development (watch mode)
 
@@ -38,6 +41,15 @@ npm run watch
 ```
 
 Rebuilds on every file save. Reload the extension in the browser after each build.
+
+### Publishing a new release
+
+Tag the commit and push — GitHub Actions builds the zip and publishes the release automatically:
+
+```bash
+git tag v1.0.1
+git push origin v1.0.1
+```
 
 ---
 
