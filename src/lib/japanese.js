@@ -14,7 +14,6 @@ export function initJapanese() {
       : 'dict/';
 
     console.log('[JpTrans] loading kuromoji dictionaries from:', dictPath);
-
     kuroshiro = new Kuroshiro();
     const analyzer = new KuromojiAnalyzer({ dictPath });
     await kuroshiro.init(analyzer);
@@ -30,39 +29,46 @@ export function initJapanese() {
   return initPromise;
 }
 
-/**
- * Converts a single kuromoji token to a display descriptor.
- *
- * Returns one of:
- *   { type: 'word',  surface, reading (hiragana|null), romaji }
- *   { type: 'plain', surface }   — punctuation / Latin / numbers
- */
-function describeToken(token) {
-  const surface = token.surface_form;
-  const katakana = token.reading; // katakana, or undefined for non-Japanese
+// wanakana romanization system identifiers
+const ROMAJI_SYSTEM_MAP = {
+  hepburn: 'hepburn',
+  nihon:   'nihonsiki',
+  kunrei:  'kunreisiki',
+};
+
+const PURE_KATAKANA_RE = /^[\u30A0-\u30FF\u30FC]+$/;
+const KANJI_RE         = /[\u4E00-\u9FFF]/;
+
+function describeToken(token, romajiSystem, skipKatakana) {
+  const surface  = token.surface_form;
+  const katakana = token.reading; // undefined for punctuation/Latin
 
   if (!katakana) return { type: 'plain', surface };
 
-  const hasKanji = /[\u4E00-\u9FFF]/.test(surface);
+  const hasKanji      = KANJI_RE.test(surface);
+  const isPureKatakana = PURE_KATAKANA_RE.test(surface);
+
+  // #8 — skip romaji for pure katakana loanwords when option is on
+  const showRomaji = !(skipKatakana && isPureKatakana);
+
   return {
     type: 'word',
     surface,
-    // Show hiragana reading only when surface contains kanji
-    // (pure hiragana/katakana tokens are already phonetic)
     reading: hasKanji ? toHiragana(katakana) : null,
-    romaji: toRomaji(katakana),
+    romaji:  showRomaji
+      ? toRomaji(katakana, { romanization: ROMAJI_SYSTEM_MAP[romajiSystem] || 'hepburn' })
+      : null,
   };
 }
 
+const JP_RUN = /[\u3000-\u9FFF\uF900-\uFAFF\uFF00-\uFFEF]+/g;
+
 /**
- * Parses text into display tokens for the word-by-word annotation view.
- *
- * Returns an array of:
- *   { type: 'word',  surface, reading, romaji }
- *   { type: 'plain', surface }
- *   { type: 'break' }    — from newlines in the original tweet
+ * Parse text into display tokens.
+ * Respects settings.romajiSystem (#7) and settings.skipKatakana (#8).
  */
-export async function getTokens(text) {
+export async function getTokens(text, settings = {}) {
+  const { romajiSystem = 'hepburn', skipKatakana = false } = settings;
   const k = await initJapanese();
   const lines = text.split('\n');
   const result = [];
@@ -70,7 +76,7 @@ export async function getTokens(text) {
   for (let i = 0; i < lines.length; i++) {
     if (i > 0) result.push({ type: 'break' });
     const tokens = await k._analyzer.parse(lines[i]);
-    result.push(...tokens.map(describeToken));
+    result.push(...tokens.map((t) => describeToken(t, romajiSystem, skipKatakana)));
   }
 
   return result;
