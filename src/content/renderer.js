@@ -1,6 +1,11 @@
 const STYLES = `
   :host { display: block !important; }
 
+  /* ── Font size — driven by --panel-font-size custom property (#10) ── */
+  :host { --panel-font-size: 14px; }
+  :host([data-size="small"])  { --panel-font-size: 11px; }
+  :host([data-size="large"])  { --panel-font-size: 17px; }
+
   /* ── Light mode (default) ── */
   .panel {
     margin: 8px 0 4px;
@@ -9,6 +14,7 @@ const STYLES = `
     background: rgba(29, 155, 240, 0.05);
     border-radius: 0 6px 6px 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: var(--panel-font-size);
     box-sizing: border-box;
   }
 
@@ -165,7 +171,7 @@ function findInsertionPoint(tweetRoot, textEl) {
   return node;
 }
 
-export function createAnnotationHost(tweetRoot) {
+export function createAnnotationHost(tweetRoot, settings = {}) {
   const textEl = tweetRoot.querySelector('[data-testid="tweetText"]');
   if (!textEl) {
     console.warn('[JpTrans] tweetText not found inside', tweetRoot);
@@ -177,6 +183,10 @@ export function createAnnotationHost(tweetRoot) {
   host.setAttribute('data-jptrans-host', 'true');
   host.style.cssText = 'display:block;width:100%;';
   if (isPageDark()) host.setAttribute('data-dark', '');
+  // #10 — font size
+  if (settings.fontSize && settings.fontSize !== 'normal') {
+    host.setAttribute('data-size', settings.fontSize);
+  }
 
   const shadow = host.attachShadow({ mode: 'open' });
 
@@ -206,7 +216,13 @@ export function createAnnotationHost(tweetRoot) {
  * @param {Array}  tokens  — from getTokens()
  * @param {{ en, fr, truncated }} translations
  */
-export function updateAnnotation(host, tokens, { en, fr, truncated }) {
+export function updateAnnotation(host, tokens, { en, fr, truncated }, settings = {}) {
+  const {
+    showReading = true,   // #3
+    showRomaji  = true,   // #3
+    showLang1   = true,   // #3
+    showLang2   = true,   // #3
+  } = settings;
   if (!host?.shadowRoot) return;
 
   const panel = host.shadowRoot.querySelector('.panel');
@@ -241,17 +257,19 @@ export function updateAnnotation(host, tokens, { en, fr, truncated }) {
     surface.textContent = token.surface;
     cell.appendChild(surface);
 
-    if (token.reading) {
+    if (token.reading && showReading) {
       const reading = document.createElement('div');
       reading.className = 'token-reading';
       reading.textContent = token.reading;
       cell.appendChild(reading);
     }
 
-    const romaji = document.createElement('div');
-    romaji.className = 'token-romaji';
-    romaji.textContent = token.romaji;
-    cell.appendChild(romaji);
+    if (token.romaji && showRomaji) {
+      const romaji = document.createElement('div');
+      romaji.className = 'token-romaji';
+      romaji.textContent = token.romaji;
+      cell.appendChild(romaji);
+    }
 
     grid.appendChild(cell);
   }
@@ -263,8 +281,13 @@ export function updateAnnotation(host, tokens, { en, fr, truncated }) {
   sep.className = 'sep';
   panel.appendChild(sep);
 
-  // Translations
-  for (const { label, value } of [{ label: 'English', value: en }, { label: 'French', value: fr }]) {
+  // Translations — only render rows that are enabled (#3)
+  const translationRows = [
+    { label: 'English', value: en, show: showLang1 },
+    { label: 'French',  value: fr, show: showLang2 },
+  ].filter((r) => r.show);
+
+  for (const { label, value } of translationRows) {
     const row = document.createElement('div');
     row.className = 'row';
 

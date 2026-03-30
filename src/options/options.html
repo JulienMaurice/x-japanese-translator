@@ -44,6 +44,21 @@
         </select>
       </div>
 
+      <label class="toggle-row">
+        <span class="label-text">Hide romaji for katakana words <span class="hint">(loanwords like ゲーム are already phonetic)</span></span>
+        <input type="checkbox" id="skipKatakana" />
+        <span class="toggle"></span>
+      </label>
+
+      <div class="field-row">
+        <label for="fontSize" class="label-text">Font size</label>
+        <select id="fontSize">
+          <option value="small">Small</option>
+          <option value="normal">Normal</option>
+          <option value="large">Large</option>
+        </select>
+      </div>
+
       <div class="field-row">
         <label for="minJapaneseChars" class="label-text">
           Minimum Japanese characters

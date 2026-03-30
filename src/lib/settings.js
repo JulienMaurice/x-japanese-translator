@@ -13,6 +13,8 @@ export const DEFAULTS = {
   lang1: 'en',
   lang2: 'fr',
   romajiSystem: 'hepburn',  // 'hepburn' | 'nihon' | 'kunrei'
+  skipKatakana: false,      // hide romaji for pure katakana tokens
+  fontSize: 'normal',       // 'small' | 'normal' | 'large'
   clickToTranslate: false,
   myMemoryEmail: '',
   minJapaneseChars: 2,
