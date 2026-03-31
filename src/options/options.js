@@ -1,5 +1,6 @@
 import { DEFAULTS, getSettings, saveSettings } from '../lib/settings.js';
 import { STYLES, buildPanel } from '../lib/panel.js';
+import { toRomaji } from 'wanakana';
 
 const LANGUAGES = [
   { code: 'en', label: 'English' },
@@ -18,17 +19,26 @@ const LANGUAGES = [
   { code: 'ko', label: 'Korean' },
 ];
 
-// Pre-computed tokens for 日本語の勉強をしています (#16)
-const PREVIEW_TOKENS = [
-  { type: 'word', surface: '日本語', reading: 'にほんご', romaji: 'nihongo' },
-  { type: 'word', surface: 'の',     reading: null,       romaji: 'no' },
-  { type: 'word', surface: '勉強',   reading: 'べんきょう', romaji: 'benkyō' },
-  { type: 'word', surface: 'を',     reading: null,       romaji: 'wo' },
-  { type: 'word', surface: 'し',     reading: null,       romaji: 'shi' },
-  { type: 'word', surface: 'て',     reading: null,       romaji: 'te' },
-  { type: 'word', surface: 'い',     reading: null,       romaji: 'i' },
-  { type: 'word', surface: 'ます',   reading: null,       romaji: 'masu' },
+// Maps settings key → wanakana romanization identifier
+const ROMAJI_SYSTEM_MAP = {
+  hepburn: 'hepburn',
+  nihon:   'nihonsiki',
+  kunrei:  'kunreisiki',
+};
+
+// Base tokens for 日本語の勉強をしています — katakana stored so romaji can be
+// recomputed live when the user switches romanization system (#16).
+const PREVIEW_TOKENS_BASE = [
+  { type: 'word', surface: '日本語', reading: 'にほんご', katakana: 'ニホンゴ' },
+  { type: 'word', surface: 'の',     reading: null,        katakana: 'ノ' },
+  { type: 'word', surface: '勉強',   reading: 'べんきょう', katakana: 'ベンキョウ' },
+  { type: 'word', surface: 'を',     reading: null,        katakana: 'ヲ' },
+  { type: 'word', surface: 'し',     reading: null,        katakana: 'シ' },
+  { type: 'word', surface: 'て',     reading: null,        katakana: 'テ' },
+  { type: 'word', surface: 'い',     reading: null,        katakana: 'イ' },
+  { type: 'word', surface: 'ます',   reading: null,        katakana: 'マス' },
 ];
+
 const PREVIEW_TRANSLATIONS = {
   lang1: 'I am studying Japanese.',
   lang2: "J'étudie le japonais.",
@@ -71,30 +81,47 @@ function set(id, value) {
 
 // ── Live preview (#16) ──────────────────────────────────────────────────────
 
+let previewHost   = null;
 let previewShadow = null;
 
 function setupPreview() {
   const container = document.getElementById('preview-host');
   if (!container) return;
-  const host = document.createElement('div');
-  host.style.cssText = 'display:block;width:100%;';
-  container.appendChild(host);
-  previewShadow = host.attachShadow({ mode: 'open' });
+
+  previewHost = document.createElement('div');
+  previewHost.style.cssText = 'display:block;width:100%;';
+  container.appendChild(previewHost);
+
+  previewShadow = previewHost.attachShadow({ mode: 'open' });
   const style = document.createElement('style');
   style.textContent = STYLES;
   previewShadow.appendChild(style);
 }
 
 function renderPreview() {
-  if (!previewShadow) return;
+  if (!previewShadow || !previewHost) return;
 
   const settings = {};
   for (const key of Object.keys(DEFAULTS)) {
     settings[key] = val(key);
   }
 
+  // Recompute romaji from katakana using the currently selected system
+  const romanization = ROMAJI_SYSTEM_MAP[settings.romajiSystem] || 'hepburn';
+  const tokens = PREVIEW_TOKENS_BASE.map((t) => ({
+    ...t,
+    romaji: t.katakana ? toRomaji(t.katakana, { romanization }) : null,
+  }));
+
+  // Sync font-size attribute on the Shadow host so :host([data-size=...]) fires
+  if (settings.fontSize && settings.fontSize !== 'normal') {
+    previewHost.setAttribute('data-size', settings.fontSize);
+  } else {
+    previewHost.removeAttribute('data-size');
+  }
+
   const oldPanel = previewShadow.querySelector('.panel');
-  const newPanel = buildPanel(PREVIEW_TOKENS, PREVIEW_TRANSLATIONS, settings);
+  const newPanel = buildPanel(tokens, PREVIEW_TRANSLATIONS, settings);
 
   if (oldPanel) {
     previewShadow.replaceChild(newPanel, oldPanel);
@@ -112,14 +139,13 @@ async function init() {
   populateSelect('lang2', settings.lang2);
 
   for (const key of Object.keys(DEFAULTS)) {
-    if (key === 'lang1' || key === 'lang2') continue; // already set via populateSelect
+    if (key === 'lang1' || key === 'lang2') continue;
     set(key, settings[key]);
   }
 
   setupPreview();
   renderPreview();
 
-  // Re-render preview on any settings change
   document.querySelector('.page').addEventListener('input', renderPreview);
 }
 
