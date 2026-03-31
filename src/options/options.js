@@ -56,6 +56,15 @@ async function init() {
 }
 
 document.getElementById('save').addEventListener('click', async () => {
+  const status = document.getElementById('status');
+
+  const email = val('myMemoryEmail');
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    status.textContent = 'Invalid email address.';
+    setTimeout(() => { status.textContent = ''; }, 3000);
+    return;
+  }
+
   const updated = {};
   for (const key of Object.keys(DEFAULTS)) {
     updated[key] = val(key);
@@ -63,7 +72,6 @@ document.getElementById('save').addEventListener('click', async () => {
 
   await saveSettings(updated);
 
-  const status = document.getElementById('status');
   status.textContent = 'Saved.';
   setTimeout(() => { status.textContent = ''; }, 2000);
 });

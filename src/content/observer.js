@@ -19,6 +19,8 @@ function scanExisting(settings) {
 export function startObserver(settings) {
   console.log('[JpTrans] extension started on', location.href, '| enabled:', settings.enabled);
 
+  if (!settings.enabled) return;
+
   scanExisting(settings);
   setTimeout(() => scanExisting(settings), 800);
   setTimeout(() => scanExisting(settings), 2000);
@@ -41,7 +43,11 @@ export function startObserver(settings) {
 
   const originalPushState = history.pushState.bind(history);
   history.pushState = function (...args) {
-    originalPushState(...args);
+    try {
+      originalPushState(...args);
+    } catch (err) {
+      console.warn('[JpTrans] pushState failed:', err);
+    }
     setTimeout(() => scanExisting(settings), 1500);
     setTimeout(() => scanExisting(settings), 3000);
   };

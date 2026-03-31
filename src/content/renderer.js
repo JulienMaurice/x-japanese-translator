@@ -308,7 +308,7 @@ export function updateAnnotation(host, tokens, { lang1, lang2, truncated }, sett
   const translationRows = [
     { label: LANG_NAMES[settings.lang1] || settings.lang1 || 'English', value: lang1, show: showLang1 },
     { label: LANG_NAMES[settings.lang2] || settings.lang2 || 'French',  value: lang2, show: showLang2 },
-  ].filter((r) => r.show && r.value);
+  ].filter((r) => r.show && r.value && r.value !== '[translation unavailable]');
 
   for (const { label, value } of translationRows) {
     const row = document.createElement('div');

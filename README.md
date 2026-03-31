@@ -102,7 +102,7 @@ The extension uses the **[MyMemory](https://mymemory.translated.net/)** free API
 - **Speed**: translations are queued at ~1 tweet/second on page load to stay within rate limits.
 - **Mixed content**: tweets mixing Japanese with other languages translate the Japanese portions correctly; non-Japanese parts pass through unchanged.
 
-To raise the limit to 50 000 chars/day, register a free MyMemory account and append `&de=your@email.com` to the API calls in `src/lib/translation.js`.
+To raise the limit to 50 000 chars/day, register a free MyMemory account and enter your email in the extension settings page (the ⚙️ icon in the toolbar).
 
 ---
 

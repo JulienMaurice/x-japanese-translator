@@ -33,7 +33,12 @@ export async function processTweet(article, settings) {
 
     // #6 — click-to-translate: show tokens + a button, skip auto-translate
     if (settings.clickToTranslate) {
-      showTranslateButton(host, tokens, settings, () => runTranslation(host, text, tokens, settings));
+      showTranslateButton(host, tokens, settings, () =>
+        runTranslation(host, text, tokens, settings).catch((err) => {
+          console.error('[JpTrans] translation error:', err);
+          showAnnotationError(host, `Error: ${err.message}`);
+        })
+      );
       return;
     }
 
