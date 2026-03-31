@@ -122,6 +122,41 @@ select { min-width: 160px; }
 input[type="number"] { width: 64px; text-align: center; }
 input[type="email"] { min-width: 200px; }
 
+/* ── Radio group ── */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #0f1419;
+  cursor: pointer;
+  user-select: none;
+}
+
+.radio-label input[type="radio"] {
+  accent-color: rgb(29, 155, 240);
+  cursor: pointer;
+}
+
+/* ── Live preview ── */
+.preview-hint {
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #71767b;
+}
+
+#preview-host {
+  border-radius: 6px;
+  overflow: hidden;
+}
+
 /* ── Save bar ── */
 .save-bar {
   position: fixed;
