@@ -51,6 +51,20 @@
       </label>
 
       <div class="field-row">
+        <label class="label-text">Reading position</label>
+        <div class="radio-group">
+          <label class="radio-label">
+            <input type="radio" name="readingPosition" value="above" />
+            Above kanji
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="readingPosition" value="below" />
+            Below kanji
+          </label>
+        </div>
+      </div>
+
+      <div class="field-row">
         <label for="fontSize" class="label-text">Font size</label>
         <select id="fontSize">
           <option value="small">Small</option>
@@ -109,6 +123,12 @@
         </label>
         <input type="email" id="myMemoryEmail" placeholder="you@example.com" />
       </div>
+    </section>
+
+    <section>
+      <h2>Preview</h2>
+      <p class="hint preview-hint">日本語の勉強をしています</p>
+      <div id="preview-host"></div>
     </section>
 
     <div class="save-bar">

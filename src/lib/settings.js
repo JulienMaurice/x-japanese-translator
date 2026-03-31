@@ -18,6 +18,7 @@ export const DEFAULTS = {
   clickToTranslate: false,
   myMemoryEmail: '',
   minJapaneseChars: 2,
+  readingPosition: 'below', // 'above' | 'below'
 };
 
 /** Returns current settings merged with defaults. */
