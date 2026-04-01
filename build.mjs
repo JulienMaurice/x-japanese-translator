@@ -24,6 +24,8 @@ async function copyStaticFiles() {
   copyFileSync('manifest.json', 'dist/manifest.json');
   copyFileSync('src/options/options.html', 'dist/options.html');
   copyFileSync('src/options/options.css', 'dist/options.css');
+  copyFileSync('src/popup/popup.html', 'dist/popup.html');
+  copyFileSync('src/popup/popup.css', 'dist/popup.css');
 
   // Copy kuromoji dictionary files
   const dictSrc = resolve(__dirname, 'node_modules/kuromoji/dict');
@@ -54,8 +56,16 @@ if (watching) {
     format: 'esm',
   });
 
+  const popupCtx = await context({
+    ...sharedConfig,
+    entryPoints: ['src/popup/popup.js'],
+    outfile: 'dist/popup.js',
+    format: 'iife',
+  });
+
   await contentCtx.watch();
   await bgCtx.watch();
+  await popupCtx.watch();
   console.log('[build] Watching for changes...');
 } else {
   await copyStaticFiles();
@@ -77,6 +87,12 @@ if (watching) {
       ...sharedConfig,
       entryPoints: ['src/options/options.js'],
       outfile: 'dist/options.js',
+      format: 'iife',
+    }),
+    build({
+      ...sharedConfig,
+      entryPoints: ['src/popup/popup.js'],
+      outfile: 'dist/popup.js',
       format: 'iife',
     }),
   ]);
