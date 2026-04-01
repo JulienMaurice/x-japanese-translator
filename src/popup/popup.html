@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>X Japanese Translator</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="popup">
+    <header class="popup-header">
+      <span class="popup-title">X Japanese Translator</span>
+      <a id="openOptions" class="options-link">Full settings →</a>
+    </header>
+
+    <div class="toggles">
+      <label class="toggle-row">
+        <span class="label-text">Enable extension</span>
+        <input type="checkbox" id="enabled" />
+        <span class="toggle"></span>
+      </label>
+      <label class="toggle-row">
+        <span class="label-text">Hiragana reading</span>
+        <input type="checkbox" id="showReading" />
+        <span class="toggle"></span>
+      </label>
+      <label class="toggle-row">
+        <span class="label-text">Romaji</span>
+        <input type="checkbox" id="showRomaji" />
+        <span class="toggle"></span>
+      </label>
+      <label class="toggle-row">
+        <span class="label-text">Translation 1</span>
+        <input type="checkbox" id="showLang1" />
+        <span class="toggle"></span>
+      </label>
+      <label class="toggle-row">
+        <span class="label-text">Translation 2</span>
+        <input type="checkbox" id="showLang2" />
+        <span class="toggle"></span>
+      </label>
+      <label class="toggle-row">
+        <span class="label-text">Click to translate</span>
+        <input type="checkbox" id="clickToTranslate" />
+        <span class="toggle"></span>
+      </label>
+    </div>
+
+    <div class="preview-section">
+      <div class="preview-label">Preview</div>
+      <div id="preview-host"></div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

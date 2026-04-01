@@ -166,6 +166,15 @@ export const STYLES = `
     font-style: italic;
     margin-top: 4px;
   }
+
+  /* ── Disabled preview state ── */
+  .preview-disabled {
+    padding: 12px 14px;
+    color: #9aa5b1;
+    font-style: italic;
+    font-size: 13px;
+    text-align: center;
+  }
 `;
 
 // Human-readable language names for translation row labels
@@ -248,7 +257,7 @@ export function buildTokenGrid(tokens, settings = {}) {
  * Build a complete annotation panel: token grid + separator + translation rows.
  */
 export function buildPanel(tokens, { lang1, lang2, truncated } = {}, settings = {}) {
-  const { showLang1 = true, showLang2 = true } = settings;
+  const { showLang1 = true, showLang2 = true, clickToTranslate = false } = settings;
 
   const panel = document.createElement('div');
   panel.className = 'panel';
@@ -258,6 +267,14 @@ export function buildPanel(tokens, { lang1, lang2, truncated } = {}, settings = 
   const sep = document.createElement('div');
   sep.className = 'sep';
   panel.appendChild(sep);
+
+  if (clickToTranslate && !lang1 && !lang2) {
+    const btn = document.createElement('button');
+    btn.className = 'translate-btn';
+    btn.textContent = 'Translate';
+    panel.appendChild(btn);
+    return panel;
+  }
 
   const translationRows = [
     { label: LANG_NAMES[settings.lang1] || settings.lang1 || 'English', value: lang1, show: showLang1 },

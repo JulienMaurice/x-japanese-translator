@@ -1,8 +1,11 @@
 {
   "manifest_version": 3,
   "name": "X Japanese Translator",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Adds furigana, romaji and EN/FR translations to Japanese tweets on X",
+  "action": {
+    "default_popup": "popup.html"
+  },
   "permissions": ["storage"],
   "host_permissions": [
     "https://x.com/*",
